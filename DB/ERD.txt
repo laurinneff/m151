@@ -1,0 +1,10 @@
+  ╔════════════╗            ╔══════════════╗            ╔════════════════╗
+  ║   USERS    ║            ║   ACCOUNTS   ║            ║  TRANSACTIONS  ║
+  ╟────────────╢            ╟──────────────╢            ╟────────────────╢
+  ║ - id       ╟─1───┐      ║ - id         ╟─1───┐      ║ - id           ║
+  ║ - name     ║     └───nc─╢ - user_id    ║     ├───nc─╢ - account_from ║
+  ║ - email    ║            ║ - balance    ║     └───nc─╢ - account_to   ║
+  ║ - pwd_hash ║            ║ - name       ║            ║ - amount       ║
+  ╚════════════╝            ╚══════════════╝            ║ - description  ║
+                                                        ║ - timestamp    ║
+                                                        ╚════════════════╝
