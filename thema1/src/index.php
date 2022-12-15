@@ -7,6 +7,12 @@ use Laminas\Diactoros\ServerRequestFactory;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
+$whoops = new \Whoops\Run();
+$errorHandler = new \Whoops\Handler\PrettyPageHandler();
+$errorHandler->setEditor('vscode');
+$whoops->pushHandler($errorHandler);
+$whoops->register();
+
 $routes = [];
 
 // Find controllers in the Controller directory
@@ -26,6 +32,10 @@ $request = ServerRequestFactory::fromGlobals(
 
 foreach ($routes as $route) {
     if ($route->path === $request->getUri()->getPath() && $route->method === $request->getMethod()) {
+        $errorHandler->addDataTable('Route', [
+            'Controller' => $route->handler[0],
+            'Handler' => $route->handler[1]
+        ]);
         $response = call_user_func($route->handler, $request);
         break;
     }

@@ -5,6 +5,7 @@
 		}
 	},
 	"require": {
-		"laminas/laminas-diactoros": "^2.23"
+		"laminas/laminas-diactoros": "^2.23",
+		"filp/whoops": "^2.14"
 	}
 }
