@@ -78,6 +78,16 @@ class ORM
         return $out;
     }
 
+    /**
+     * Finds the first row matching a query. The query is matched using LIKE, so `['row' => 'test']` checks
+     * if the value is equal to test, and `['row' => '%test']` checks if the value contains test.
+     */
+    public static function findOne(string $className, array $query = []): ?object
+    {
+        $result = self::find($className, $query);
+        return count($result) > 0 ? $result[0] : null;
+    }
+
     public static function insert($object): void
     {
         $className = get_class($object);

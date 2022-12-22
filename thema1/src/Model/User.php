@@ -14,15 +14,18 @@ class User
     #[Column(primaryKey: true)]
     private string $id;
 
+        #[Column('pwd_hash')]
+        private string $passwordHash;
+
     public function __construct(
         #[Column]
         private string $name,
         #[Column]
         private string $email,
-        #[Column('pwd_hash')]
-        private string $passwordHash,
+        string $password,
         string $id = null,
     ) {
+        $this->setPassword($password);
         $this->id = $id ?? Uuid::uuid4()->toString();
     }
 

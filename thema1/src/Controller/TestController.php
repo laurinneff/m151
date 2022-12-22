@@ -21,7 +21,7 @@ class TestController extends BaseController
         $user = new User(
             name: 'John Doe',
             email: 'john@doe.com',
-            passwordHash: '1234',
+            password: '1234',
         );
         ORM::insert($user);
 

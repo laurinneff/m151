@@ -17,12 +17,18 @@ class Config
 
     // Argument order might seem strange, but it's required for named arguments to work while keeping default values working.
     public function __construct(
+        private string $jwtKey,
         private string $dbUser,
         private string $dbPassword,
         private string $dbName,
         private string $dbHost = 'localhost',
         private int $dbPort = 3306,
     ) {
+    }
+
+    public function getJwtKey(): string
+    {
+        return $this->jwtKey;
     }
 
     public function getDbHost(): string

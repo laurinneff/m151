@@ -5,8 +5,11 @@
         }
     },
     "require": {
+        "php": "^8.1",
+        "ext-pdo": "*",
         "laminas/laminas-diactoros": "^2.23",
         "filp/whoops": "^2.14",
-        "ramsey/uuid": "^4.6"
+        "ramsey/uuid": "^4.6",
+        "firebase/php-jwt": "^6.3"
     }
 }
