@@ -32,6 +32,8 @@ CREATE TRIGGER update_balance
   AFTER INSERT ON transactions FOR EACH ROW
 BEGIN
 
+  START TRANSACTION;
+
   UPDATE accounts
   SET balance = balance + NEW.amount
   WHERE id = NEW.account_to;
@@ -39,5 +41,7 @@ BEGIN
   UPDATE accounts
   SET balance = balance - NEW.amount
   WHERE id = NEW.account_from;
+
+  COMMIT;
 
 END;

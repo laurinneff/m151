@@ -1,11 +1,12 @@
 {
-	"autoload": {
-		"psr-4": {
-			"App\\": "src/"
-		}
-	},
-	"require": {
-		"laminas/laminas-diactoros": "^2.23",
-		"filp/whoops": "^2.14"
-	}
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "require": {
+        "laminas/laminas-diactoros": "^2.23",
+        "filp/whoops": "^2.14",
+        "ramsey/uuid": "^4.6"
+    }
 }
