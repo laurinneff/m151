@@ -66,10 +66,11 @@ class ORM
                             [self::getPrimaryKey($type) => $row[$column]]
                         )[0]
                     );
-                    continue;
+                } elseif ($type === 'DateTime') {
+                    $reflectionProperty->setValue($instance, new \DateTime($row[$column]));
+                } else {
+                    $reflectionProperty->setValue($instance, $row[$column]);
                 }
-
-                $reflectionProperty->setValue($instance, $row[$column]);
             }
 
             $out[] = $instance;
@@ -115,6 +116,8 @@ class ORM
                 $primaryKey = self::getPrimaryKey($type);
                 $pkProperty = new \ReflectionProperty($type, $primaryKey);
                 $value = $pkProperty->getValue($reflectionProperty->getValue($object));
+            } elseif ($type === 'DateTime') {
+                $value = $reflectionProperty->getValue($object)->format('Y-m-d H:i:s');
             } else {
                 $value = $reflectionProperty->getValue($object);
             }
@@ -152,6 +155,8 @@ class ORM
                 $primaryKey = self::getPrimaryKey($type);
                 $pkProperty = new \ReflectionProperty($type, $primaryKey);
                 $value = $pkProperty->getValue($reflectionProperty->getValue($object));
+            } elseif ($type === 'DateTime') {
+                $value = $reflectionProperty->getValue($object)->format('Y-m-d H:i:s');
             } else {
                 $value = $reflectionProperty->getValue($object);
             }

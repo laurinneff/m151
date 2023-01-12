@@ -15,6 +15,9 @@ class Transaction
     #[Column(primaryKey: true)]
     private string $id;
 
+    #[Column]
+    private DateTime $timestamp;
+
     public function __construct(
         #[Column('account_from')]
         private Account $accountFrom,
@@ -24,10 +27,10 @@ class Transaction
         private float $amount,
         #[Column]
         private string $description,
-        #[Column]
-        private DateTime $timestamp,
+        DateTime $timestamp = null,
         string $id = null,
     ) {
+        $this->timestamp = $timestamp ?? new DateTime();
         $this->id = $id ?? Uuid::uuid4()->toString();
     }
 

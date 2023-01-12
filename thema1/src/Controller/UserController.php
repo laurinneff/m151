@@ -87,7 +87,7 @@ class UserController extends BaseController
             );
         }
 
-        /** @var User */
+        /** @var ?User */
         $user = ORM::findOne(User::class, ['id' => $jwt->userId]);
         if ($user === null) {
             return new JsonResponse(
@@ -100,6 +100,55 @@ class UserController extends BaseController
 
         return new JsonResponse(
             [
+                'id' => $user->getId(),
+                'name' => $user->getName(),
+                'email' => $user->getEmail(),
+            ],
+            200,
+        );
+    }
+
+    #[Route('/me', 'PUT')]
+    public static function update(ServerRequest $request): Response
+    {
+        $jwt = $request->getHeader('Authorization')[0] ?? '';
+        $jwt = str_replace('Bearer ', '', $jwt);
+        $jwt = self::checkJwt($jwt);
+        if ($jwt === null) {
+            return new JsonResponse(
+                [
+                    'message' => 'Unauthorized',
+                ],
+                401,
+            );
+        }
+
+        /** @var ?User */
+        $user = ORM::findOne(User::class, ['id' => $jwt->userId]);
+        if ($user === null) {
+            return new JsonResponse(
+                [
+                    'message' => 'Unauthorized',
+                ],
+                401,
+            );
+        }
+
+        $body = json_decode($request->getBody()->getContents());
+        if (isset($body->name)) {
+            $user->setName($body->name);
+        }
+        if (isset($body->email)) {
+            $user->setEmail($body->email);
+        }
+        if (isset($body->password)) {
+            $user->setPassword($body->password);
+        }
+        ORM::update($user);
+
+        return new JsonResponse(
+            [
+                'id' => $user->getId(),
                 'name' => $user->getName(),
                 'email' => $user->getEmail(),
             ],
