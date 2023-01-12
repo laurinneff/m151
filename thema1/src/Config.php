@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App;
 
-class Config
+readonly class Config
 {
-    public static function getConfig(): Config
+    public static function get(): Config
     {
         static $config = null;
         if ($config === null) {
@@ -17,53 +17,23 @@ class Config
 
     // Argument order might seem strange, but it's required for named arguments to work while keeping default values working.
     public function __construct(
-        private string $jwtKey,
-        private string $dbUser,
-        private string $dbPassword,
-        private string $dbName,
-        private string $dbHost = 'localhost',
-        private int $dbPort = 3306,
+        public string $jwtKey,
+        public string $dbUser,
+        public string $dbPassword,
+        public string $dbName,
+        public string $dbHost = 'localhost',
+        public int $dbPort = 3306,
     ) {
     }
 
-    public function getJwtKey(): string
-    {
-        return $this->jwtKey;
-    }
-
-    public function getDbHost(): string
-    {
-        return $this->dbHost;
-    }
-
-    public function getDbPort(): int
-    {
-        return $this->dbPort;
-    }
-
-    public function getDbUser(): string
-    {
-        return $this->dbUser;
-    }
-
-    public function getDbPassword(): string
-    {
-        return $this->dbPassword;
-    }
-
-    public function getDbName(): string
-    {
-        return $this->dbName;
-    }
-
-    public function getDb(): \PDO
+    public function db(): \PDO
     {
         static $db = null;
         if ($db === null) {
             $db = new \PDO(
-                "mysql:host={$this->getDbHost()};port={$this->getDbPort()};dbname={$this->getDbName()};charset=utf8mb4",
-                $this->getDbUser(),
-                $this->getDbPassword(),
+                "mysql:host={$this->dbHost};port={$this->dbPort};dbname={$this->dbName};charset=utf8mb4",
+                $this->dbUser,
+                $this->dbPassword,
                 [
                     \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
                     \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,

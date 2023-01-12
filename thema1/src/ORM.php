@@ -44,7 +44,7 @@ class ORM
             $sql .= implode(' AND ', array_map(fn ($column) => "$column LIKE :$column", array_keys($query_dbnames)));
         }
 
-        $db = Config::getConfig()->getDb();
+        $db = Config::get()->db();
         $stmt = $db->prepare($sql);
         $stmt->execute($query_dbnames);
 
@@ -125,7 +125,7 @@ class ORM
             $params[$column] = $value;
         }
 
-        $db = Config::getConfig()->getDb();
+        $db = Config::get()->db();
         $db->prepare($sql)->execute($params);
     }
 
@@ -164,7 +164,7 @@ class ORM
             $params[$column] = $value;
         }
 
-        $db = Config::getConfig()->getDb();
+        $db = Config::get()->db();
         $db->prepare($sql)->execute($params);
     }
 
@@ -186,7 +186,7 @@ class ORM
         $value = $reflectionProperty->getValue($object);
         $params[$primaryKey] = $value;
 
-        $db = Config::getConfig()->getDb();
+        $db = Config::get()->db();
         $db->prepare($sql)->execute($params);
     }
 

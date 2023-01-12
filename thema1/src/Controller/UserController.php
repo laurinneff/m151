@@ -163,14 +163,14 @@ class UserController extends BaseController
             'iat' => time(),
             'exp' => time() + 60 * 60 * 24 * 7,
         ];
-        $jwt = JWT::encode($payload, Config::getConfig()->getJwtKey(), 'HS256');
+        $jwt = JWT::encode($payload, Config::get()->jwtKey, 'HS256');
         return $jwt;
     }
 
     public static function checkJwt(string $jwt): ?object
     {
         try {
-            $jwt = JWT::decode($jwt, new Key(Config::getConfig()->getJwtKey(), 'HS256'));
+            $jwt = JWT::decode($jwt, new Key(Config::get()->jwtKey, 'HS256'));
             // Check expiration
             if ($jwt->exp < time()) {
                 return null;
