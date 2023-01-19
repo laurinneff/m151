@@ -6,10 +6,10 @@ namespace App\Controller;
 
 use App\Attribute\Route;
 use App\BaseController;
+use App\Config;
 use App\Model\Account;
 use App\Model\Transaction;
 use App\Model\User;
-use App\ORM;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\ServerRequest;
@@ -32,7 +32,7 @@ class TransactionController extends BaseController
         }
 
         /** @var ?User */
-        $user = ORM::findOne(User::class, ['id' => $jwt->userId]);
+        $user = Config::get()->entityManager()->getRepository(User::class)->find($jwt->userId);
         if ($user === null) {
             return new JsonResponse(
                 [
@@ -43,14 +43,13 @@ class TransactionController extends BaseController
         }
 
         /** @var Account[] */
-        $accounts = ORM::find(Account::class, ['user' => $user]);
+        $accounts = $user->getAccounts()->toArray();
 
         /** @var Transaction[] */
         $transactions = [];
-
+        
         foreach ($accounts as $account) {
-            $transactions[$account->getId()] = ORM::find(Transaction::class, ['accountFrom' => $account]);
-            $transactions[$account->getId()] = array_merge($transactions[$account->getId()], ORM::find(Transaction::class, ['accountTo' => $account]));
+            $transactions[$account->getId()] = $account->getTransactions();
             $transactions[$account->getId()] = array_map(
                 fn (Transaction $transaction) =>
                     [
@@ -84,7 +83,7 @@ class TransactionController extends BaseController
         }
 
         /** @var ?User */
-        $user = ORM::findOne(User::class, ['id' => $jwt->userId]);
+        $user = Config::get()->entityManager()->getRepository(User::class)->find($jwt->userId);
         if ($user === null) {
             return new JsonResponse(
                 [
@@ -96,8 +95,8 @@ class TransactionController extends BaseController
 
         $body = json_decode($request->getBody()->getContents());
 
-        $accountFrom = ORM::findOne(Account::class, ['id' => $body->accountFrom]);
-        $accountTo = ORM::findOne(Account::class, ['id' => $body->accountTo]);
+        $accountFrom = Config::get()->entityManager()->getRepository(Account::class)->find($body->accountFrom);
+        $accountTo = Config::get()->entityManager()->getRepository(Account::class)->find($body->accountTo);
 
         if ($accountFrom === null || $accountTo === null) {
             return new JsonResponse(
@@ -117,14 +116,17 @@ class TransactionController extends BaseController
             );
         }
 
-        $transaction = new Transaction(
-            accountFrom: $accountFrom,
-            accountTo: $accountTo,
-            amount: $body->amount,
-            description: $body->description,
-        );
+        $transaction = new Transaction();
+        $transaction->setAccountFrom($accountFrom);
+        $transaction->setAccountTo($accountTo);
+        $transaction->setAmount($body->amount);
+        $transaction->setDescription($body->description);
 
-        ORM::insert($transaction);
+        $accountFrom->setBalance($accountFrom->getBalance() - $body->amount);
+        $accountTo->setBalance($accountTo->getBalance() + $body->amount);
+
+        Config::get()->entityManager()->persist($transaction);
+        Config::get()->entityManager()->flush();
 
         return new JsonResponse(
             [

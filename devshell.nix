@@ -10,14 +10,14 @@ devshell.mkShell {
       category = "php";
       command = ''
         if [ $# -ne 1 ]; then
-          echo "usage: phpstart <thema1 | thema2 | thema3>"
+          echo "usage: phpstart <thema1 | thema2>"
           exit 1
         fi
         proj=$1
         mkdir -p "$PRJ_DATA_DIR"
         cd $proj
         echo "starting php service"
-        php -S localhost:8080 src/index.php > "$PRJ_DATA_DIR/php.log" 2>&1 &
+        php -S 0.0.0.0:8080 src/index.php > "$PRJ_DATA_DIR/php.log" 2>&1 &
         echo $! > "$PRJ_DATA_DIR/php.pid"
         echo "php listening on http://localhost:8080"
       '';
@@ -54,6 +54,16 @@ devshell.mkShell {
       }
 
       trap stop_services EXIT
+    '';
+
+    install_dependencies.text = ''
+      echo "Installing dependencies..."
+      cd thema1
+      composer install
+      cd ..
+      cd thema2
+      composer install
+      cd ..
     '';
   };
 }

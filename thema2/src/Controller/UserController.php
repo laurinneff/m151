@@ -8,7 +8,6 @@ use App\Attribute\Route;
 use App\BaseController;
 use App\Config;
 use App\Model\User;
-use App\ORM;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Laminas\Diactoros\Response;
@@ -21,8 +20,8 @@ class UserController extends BaseController
     public static function register(ServerRequest $request): Response
     {
         $body = json_decode($request->getBody()->getContents());
-        /** @var User */
-        $user = ORM::findOne(User::class, ['email' => $body->email]);
+        /** @var ?User */
+        $user = Config::get()->entityManager()->getRepository(User::class)->findOneBy(['email' => $body->email]);
         if ($user !== null) {
             return new JsonResponse(
                 [
@@ -31,12 +30,12 @@ class UserController extends BaseController
                 400,
             );
         }
-        $user = new User(
-            name: $body->name,
-            email: $body->email,
-            password: $body->password,
-        );
-        ORM::insert($user);
+        $user = new User();
+        $user->setName($body->name);
+        $user->setEmail($body->email);
+        $user->setPassword($body->password);
+        Config::get()->entityManager()->persist($user);
+        Config::get()->entityManager()->flush();
 
         $jwt = self::createJwt($user->getId());
 
@@ -53,7 +52,7 @@ class UserController extends BaseController
     {
         $body = json_decode($request->getBody()->getContents());
         /** @var User */
-        $user = ORM::findOne(User::class, ['email' => $body->email]);
+        $user = Config::get()->entityManager()->getRepository(User::class)->findOneBy(['email' => $body->email]);
         if ($user === null) {
             return new JsonResponse(
                 [
@@ -98,7 +97,7 @@ class UserController extends BaseController
         }
 
         /** @var ?User */
-        $user = ORM::findOne(User::class, ['id' => $jwt->userId]);
+        $user = Config::get()->entityManager()->getRepository(User::class)->find($jwt->userId);
         if ($user === null) {
             return new JsonResponse(
                 [
@@ -134,7 +133,7 @@ class UserController extends BaseController
         }
 
         /** @var ?User */
-        $user = ORM::findOne(User::class, ['id' => $jwt->userId]);
+        $user = Config::get()->entityManager()->getRepository(User::class)->find($jwt->userId);
         if ($user === null) {
             return new JsonResponse(
                 [
@@ -154,7 +153,8 @@ class UserController extends BaseController
         if (isset($body->password)) {
             $user->setPassword($body->password);
         }
-        ORM::update($user);
+        Config::get()->entityManager()->persist($user);
+        Config::get()->entityManager()->flush();
 
         return new JsonResponse(
             [
@@ -166,8 +166,12 @@ class UserController extends BaseController
         );
     }
 
-    public static function createJwt(string $userId): string
+    public static function createJwt(?string $userId): string
     {
+        if ($userId === null) {
+            throw new \Exception('User ID is required');
+        }
+
         $payload = [
             'userId' => $userId,
             'iat' => time(),
